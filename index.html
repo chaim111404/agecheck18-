@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בדיקת גיל - וודא את גיל הלקוח לפני מכירה</title>
+    <meta name="description" content="אפליקציה לבדיקת גיל הלקוח - וודא שאתה מוכר רק לבגירים. חישוב מדויק של גיל עם ספירת שניות בזמן אמת">
+    <meta name="keywords" content="בדיקת גיל, וידוא גיל, מכירה לבגירים, חישוב גיל, PWA, אפליקציה">
+    <meta name="theme-color" content="#00CED1">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192x192.png">
+    
+    <style>
+        :root {
+            --turquoise: #00CED1;
+            --turquoise-dark: #009a9c;
+            --turquoise-light: #7fffd4;
+            --led-glow: 0 0 10px var(--turquoise), 0 0 20px var(--turquoise), 0 0 30px var(--turquoise-light);
+        }
+
+        body {
+            background: #000;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0, 206, 209, 0.5);
+            border: 2px solid var(--turquoise);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--turquoise-light);
+            text-shadow: 0 0 10px var(--turquoise);
+            font-size: 28px;
+        }
+
+        .date-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        .date-selector select {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--turquoise);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 16px;
+            box-shadow: var(--led-glow);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, var(--turquoise), var(--turquoise-light));
+            border: none;
+            border-radius: 10px;
+            color: #0a2e38;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: var(--led-glow);
+            margin-top: 10px;
+            display: none;
+        }
+
+        .spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner svg {
+            width: 50px;
+            height: 50px;
+            animation: spin 0.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: var(--led-glow);
+        }
+
+        .result-svg {
+            margin: 15px auto;
+            width: 120px;
+            height: 120px;
+        }
+
+        .age-details {
+            margin-top: 20px;
+            font-size: 18px;
+            color: var(--turquoise-light);
+        }
+
+        .seconds-counter {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: var(--turquoise);
+        }
+
+        @keyframes draw { to { stroke-dashoffset: 0; } }
+        @keyframes pop-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes zoom-out {
+            0% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .night-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .night-popup-content {
+    animation: popup-born 0.5s ease-out forwards;
+    transform: scale(0.5);
+    opacity: 0;
+}
+
+@keyframes popup-born {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+        .night-popup-content {
+            background: #400;
+            border: 2px solid red;
+            border-radius: 15px;
+            text-align: center;
+            padding: 25px;
+            width: 80%;
+            max-width: 350px;
+            color: #00ff00;
+            box-shadow: 0 0 30px red;
+        }
+
+        .night-popup-content svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .close-night {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>בדיקת גיל הלקוח</h1>
+        <div class="date-selector">
+            <select id="day"><option value="">יום</option></select>
+            <select id="month">
+                <option value="">חודש</option>
+                <option value="0">ינואר</option><option value="1">פברואר</option>
+                <option value="2">מרץ</option><option value="3">אפריל</option>
+                <option value="4">מאי</option><option value="5">יוני</option>
+                <option value="6">יולי</option><option value="7">אוגוסט</option>
+                <option value="8">ספטמבר</option><option value="9">אוקטובר</option>
+                <option value="10">נובמבר</option><option value="11">דצמבר</option>
+            </select>
+            <select id="year"><option value="">שנה</option></select>
+        </div>
+
+        <button id="calculateBtn" class="calculate-btn">חשב גיל</button>
+        <div id="spinner" class="spinner">
+            <svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" stroke="#00CED1" stroke-width="5" fill="none"/></svg>
+        </div>
+        <div id="result" class="result">
+            <div id="resultSvg" class="result-svg"></div>
+            <div id="resultText"></div>
+            <div id="ageDetails" class="age-details"></div>
+            <div id="secondsCounter" class="seconds-counter"></div>
+        </div>
+    </div>
+
+    <div class="night-popup" id="nightPopup">
+        <div class="night-popup-content">
+            <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#ff3b30" stroke="#ff7b70" stroke-width="3"/>
+                <path d="M30,30 L70,70 M70,30 L30,70" stroke="white" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+            <h3>שימו לב!</h3>
+            <p>הלקוח נמצא כבגיר אך עדיין לא ניתן למכור אלכוהול והימורי לוטו וחישגד עד השעה 6:00 בבוקר.</p>
+            <button class="close-night" id="closeNightBtn">אישור</button>
+        </div>
+    </div>
+
+    <script>
+        let secondsInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const daySelect = document.getElementById('day');
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+
+            const yearSelect = document.getElementById('year');
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= currentYear - 100; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', checkFormCompletion);
+            });
+        });
+
+        function checkFormCompletion() {
+            const d = day.value, m = month.value, y = year.value;
+            calculateBtn.style.display = (d && m && y) ? 'block' : 'none';
+        }
+
+        calculateBtn.addEventListener('click', () => {
+            const dayVal = parseInt(day.value);
+            const monthVal = parseInt(month.value);
+            const yearVal = parseInt(year.value);
+            spinner.style.display = 'block';
+            result.style.display = 'none';
+            setTimeout(() => {
+                calculateAge(dayVal, monthVal, yearVal);
+                spinner.style.display = 'none';
+                result.style.display = 'block';
+            }, 500);
+        });
+
+        function calculateAge(day, month, year) {
+            const birthDate = new Date(year, month, day);
+            const now = new Date();
+            let ageYears = now.getFullYear() - birthDate.getFullYear();
+            let ageMonths = now.getMonth() - birthDate.getMonth();
+            let ageDays = now.getDate() - birthDate.getDate();
+            if (ageDays < 0) { ageMonths--; }
+            if (ageMonths < 0) { ageYears--; }
+
+            const resultSvg = document.getElementById('resultSvg');
+            const resultText = document.getElementById('resultText');
+            const ageDetails = document.getElementById('ageDetails');
+            resultSvg.innerHTML = '';
+
+            if (ageYears < 18) {
+                resultSvg.innerHTML = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ff3b30" stroke="#ff7b70" stroke-width="3"/><path d="M30,30 L70,70 M70,30 L30,70" stroke="white" stroke-width="8" stroke-linecap="round"/><text x="50" y="58" text-anchor="middle" fill="white" font-size="24" font-weight="bold">18</text></svg>`;
+                resultText.innerHTML = '<h2>הלקוח נמצא כקטין מתחת לגיל 18</h2><p style="color:#ff7b70; margin-top:10px;">אסור למכור ללקוח!</p>';
+            } else {
+                resultSvg.innerHTML = `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#4cd964" stroke="#7aff87" stroke-width="3"/><path id="checkmark" d="M30,50 L45,65 L70,35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-dasharray="100" stroke-dashoffset="100"/></svg>`;
+                resultText.innerHTML = '<h2>הלקוח נמצא כבגיר</h2><p style="color:#7aff87; margin-top:10px;">אפשר למכור לו</p>';
+                setTimeout(() => {
+                    const checkmark = document.getElementById('checkmark');
+                    checkmark.style.animation = 'draw 0.8s ease-out forwards';
+                }, 100);
+
+                // בדיקה לפי שעה
+                const hour = new Date().getHours();
+                if (hour >= 23 || hour < 7) {
+                    document.getElementById('nightPopup').style.display = 'flex';
+                }
+            }
+
+            ageDetails.innerHTML = `גיל: ${ageYears} שנים, ${ageMonths} חודשים, ${ageDays} ימים`;
+            updateSecondsCounter(birthDate);
+        }
+
+        function updateSecondsCounter(birthDate) {
+            const counter = document.getElementById('secondsCounter');
+            if (secondsInterval) clearInterval(secondsInterval);
+            function tick() {
+                const now = new Date();
+                const diff = now - birthDate;
+                const s = Math.floor(diff / 1000) % 60;
+                const m = Math.floor(diff / 60000) % 60;
+                const h = Math.floor(diff / 3600000) % 24;
+                const d = Math.floor(diff / 86400000) % 30;
+                const mo = Math.floor(diff / (86400000 * 30)) % 12;
+                const y = Math.floor(diff / (86400000 * 365));
+                counter.textContent = `${y} שנים, ${mo} חודשים, ${d} ימים, ${h} שעות, ${m} דקות, ${s} שניות`;
+            }
+            tick();
+            secondsInterval = setInterval(tick, 1000);
+        }
+
+        document.getElementById('closeNightBtn').addEventListener('click', () => {
+            document.getElementById('nightPopup').style.display = 'none';
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
