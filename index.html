@@ -1,14 +1,62 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>בדיקת גיל - וודא את גיל הלקוח לפני מכירה</title>
-    <meta name="description" content="אפליקציה לבדיקת גיל הלקוח - וודא שאתה מוכר רק לבגירים. חישוב מדויק של גיל עם ספירת שניות בזמן אמת">
-    <meta name="keywords" content="בדיקת גיל, וידוא גיל, מכירה לבגירים, חישוב גיל, PWA, אפליקציה">
-    <meta name="theme-color" content="#00CED1">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icon-192x192.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- 🧭 SEO בסיסי -->
+  <title>בדיקת גיל לקוח</title>
+  <meta name="description" content="מערכת בדיקת גיל לקוח - אפליקציה מהירה ונוחה ישירות מהנייד שלך." />
+  <meta name="keywords" content="בדיקת גיל לקוח, אימות גיל, מערכת לקוחות, אפליקציית גיל, אפליקציה לעסק" />
+  <meta name="author" content="Your Name Here" />
+
+  <!-- 📱 PWA + תמיכה באנדרואיד -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="בדיקת גיל לקוח">
+
+  <!-- 📸 אייקון זמני לאפליקציה -->
+  <link rel="icon" type="image/png" sizes="512x512" href="https://i.postimg.cc/mgkJy6Dq/Photoroom-20251030-014346.jpg" /> 
+  <!-- // כאן להחליף לקישור האייקון שלך -->
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/mgkJy6Dq/Photoroom-20251030-014346.jpg" />
+  <!-- // כאן גם להחליף לקישור האייקון שלך -->
+
+  <!-- 🧩 Open Graph לשיתוף ברשתות -->
+  <meta property="og:title" content="בדיקת גיל לקוח" />
+  <meta property="og:description" content="מערכת מהירה לבדיקה ואימות גיל לקוחות." />
+  <meta property="og:image" content="https://i.postimg.cc/mgkJy6Dq/Photoroom-20251030-014346.jpg" /> 
+  <!-- // כאן לשים תמונה שמוצגת כשמשתפים את האתר (WhatsApp / Facebook / Google) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourdomain.com" />
+
+  <!-- 🐦 תמונת תצוגה לטוויטר -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="בדיקת גיל לקוח" />
+  <meta name="twitter:description" content="מערכת מהירה לבדיקה ואימות גיל לקוחות." />
+  <meta name="twitter:image" content="https://i.postimg.cc/mgkJy6Dq/Photoroom-20251030-014346.jpg" />
+  <!-- // כאן לשים אותה תמונה של השיתוף -->
+
+  <!-- 🧩 תג אימות לגוגל סרץ׳ קונסול -->
+  <!-- הדבק כאן את תג המטא שתקבל מגוגל -->
+  <!-- <meta name="google-site-verification" content="XXX" /> -->
+
+  <!-- ⚙️ רישום Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('✅ Service Worker רשום בהצלחה'))
+          .catch(err => console.log('❌ שגיאה בהרשמת Service Worker:', err));
+      });
+    }
+  </script>
+
+  <!-- 🧠 תזכורת: אל תמחק, רק תוסיף את ה־<style> שלך מתחת לשורה הזו -->
+</head>
     
     <style>
         :root {
